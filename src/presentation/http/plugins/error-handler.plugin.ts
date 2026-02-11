@@ -1,5 +1,5 @@
+import { isHttpError } from '@/domain';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { isHttpError } from '@/domain/errors';
 
 export async function errorHandlerPlugin(fastify: FastifyInstance) {
   fastify.setErrorHandler((error: Error, _: FastifyRequest, reply: FastifyReply) => {

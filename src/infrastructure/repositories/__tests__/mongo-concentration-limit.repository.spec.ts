@@ -1,7 +1,10 @@
 import { Db, ObjectId } from 'mongodb';
-import { connectToDatabase, disconnectFromDatabase } from '../../database/mongodb/mongo-connection';
 import { MongoConcentrationLimitRepository } from '../mongo-concentration-limit.repository';
-import { UF } from '../../../domain/constants/brazilian-states';
+import {
+  connectToDatabase,
+  disconnectFromDatabase,
+} from '@/infrastructure/database/mongodb/mongo-connection';
+import { BrazilianStateCode } from '@/domain';
 
 describe('MongoConcentrationLimitRepository', () => {
   let db: Db;
@@ -35,7 +38,7 @@ describe('MongoConcentrationLimitRepository', () => {
 
   describe('getLimitForState', () => {
     it('returns null when state has no specific limit', async () => {
-      const limit = await repository.getLimitForState('RJ');
+      const limit = await repository.getLimitForState(BrazilianStateCode.RJ);
 
       expect(limit).toBeNull();
     });
@@ -43,13 +46,13 @@ describe('MongoConcentrationLimitRepository', () => {
     it('returns the limit for a specific state', async () => {
       await db.collection('concentration_limits').insertOne({
         _id: new ObjectId(),
-        uf: 'SP',
+        uf: BrazilianStateCode.SP,
         limit: 0.2,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
 
-      const limit = await repository.getLimitForState('SP');
+      const limit = await repository.getLimitForState(BrazilianStateCode.SP);
 
       expect(limit).toBe(0.2);
     });
@@ -57,13 +60,13 @@ describe('MongoConcentrationLimitRepository', () => {
     it('handles case insensitivity for state code', async () => {
       await db.collection('concentration_limits').insertOne({
         _id: new ObjectId(),
-        uf: 'SP',
+        uf: BrazilianStateCode.SP,
         limit: 0.2,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
 
-      const limit = await repository.getLimitForState('SP' as UF);
+      const limit = await repository.getLimitForState(BrazilianStateCode.SP);
 
       expect(limit).toBe(0.2);
     });
@@ -72,22 +75,22 @@ describe('MongoConcentrationLimitRepository', () => {
       await db.collection('concentration_limits').insertMany([
         {
           _id: new ObjectId(),
-          uf: 'SP',
+          uf: BrazilianStateCode.SP,
           limit: 0.2,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           _id: new ObjectId(),
-          uf: 'RJ',
+          uf: BrazilianStateCode.RJ,
           limit: 0.12,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
       ]);
 
-      const spLimit = await repository.getLimitForState('SP');
-      const rjLimit = await repository.getLimitForState('RJ');
+      const spLimit = await repository.getLimitForState(BrazilianStateCode.SP);
+      const rjLimit = await repository.getLimitForState(BrazilianStateCode.RJ);
 
       expect(spLimit).toBe(0.2);
       expect(rjLimit).toBe(0.12);
@@ -120,19 +123,19 @@ describe('MongoConcentrationLimitRepository', () => {
     it('uses cache for subsequent calls', async () => {
       await db.collection('concentration_limits').insertOne({
         _id: new ObjectId(),
-        uf: 'SP',
+        uf: BrazilianStateCode.SP,
         limit: 0.2,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
 
-      const limit1 = await repository.getLimitForState('SP');
+      const limit1 = await repository.getLimitForState(BrazilianStateCode.SP);
 
       await db
         .collection('concentration_limits')
-        .updateOne({ uf: 'SP' }, { $set: { limit: 0.25 } });
+        .updateOne({ uf: BrazilianStateCode.SP }, { $set: { limit: 0.25 } });
 
-      const limit2 = await repository.getLimitForState('SP');
+      const limit2 = await repository.getLimitForState(BrazilianStateCode.SP);
 
       expect(limit1).toBe(0.2);
       expect(limit2).toBe(0.2);
@@ -144,21 +147,21 @@ describe('MongoConcentrationLimitRepository', () => {
 
       await db.collection('concentration_limits').insertOne({
         _id: new ObjectId(),
-        uf: 'SP',
+        uf: BrazilianStateCode.SP,
         limit: 0.2,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
 
-      const limit1 = await shortTTLRepo.getLimitForState('SP');
+      const limit1 = await shortTTLRepo.getLimitForState(BrazilianStateCode.SP);
 
       await db
         .collection('concentration_limits')
-        .updateOne({ uf: 'SP' }, { $set: { limit: 0.25 } });
+        .updateOne({ uf: BrazilianStateCode.SP }, { $set: { limit: 0.25 } });
 
       await new Promise((resolve) => setTimeout(resolve, 150));
 
-      const limit2 = await shortTTLRepo.getLimitForState('SP');
+      const limit2 = await shortTTLRepo.getLimitForState(BrazilianStateCode.SP);
 
       expect(limit1).toBe(0.2);
       expect(limit2).toBe(0.25);
@@ -177,7 +180,7 @@ describe('MongoConcentrationLimitRepository', () => {
         },
         {
           _id: new ObjectId(),
-          uf: 'SP',
+          uf: BrazilianStateCode.SP,
           limit: 0.2,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -185,8 +188,8 @@ describe('MongoConcentrationLimitRepository', () => {
       ]);
 
       const defaultLimit = await repository.getDefaultLimit();
-      const spLimit = await repository.getLimitForState('SP');
-      const rjLimit = await repository.getLimitForState('RJ');
+      const spLimit = await repository.getLimitForState(BrazilianStateCode.SP);
+      const rjLimit = await repository.getLimitForState(BrazilianStateCode.RJ);
 
       expect(defaultLimit).toBe(0.1);
       expect(spLimit).toBe(0.2);

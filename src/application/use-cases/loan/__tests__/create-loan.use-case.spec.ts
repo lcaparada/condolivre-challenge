@@ -1,13 +1,13 @@
+import {
+  LoanEntity,
+  LoanRepository,
+  ConcentrationRiskService,
+  ConcentrationLimitExceededError,
+} from '@/domain';
 import { CreateLoanUseCase } from '../create-loan.use-case';
-import type { LoanRepository } from '../../../domain/repositories/loan.repository';
-import { ConcentrationRiskService } from '../../../domain/services/concentration-risk.service';
-import { LoanEntity } from '../../../domain/entities/loan.entity';
-import { ConcentrationLimitExceededError } from '../../../domain/errors';
 
 type MockConcentrationRiskService = {
-  validateConcentration: jest.MockedFunction<
-    ConcentrationRiskService['validateConcentration']
-  >;
+  validateConcentration: jest.MockedFunction<ConcentrationRiskService['validateConcentration']>;
 };
 
 describe('CreateLoanUseCase', () => {

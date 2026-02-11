@@ -1,5 +1,5 @@
-import { assertValidUF, type UF } from '../constants/brazilian-states';
-import { InvalidAmountError } from '../errors';
+import { assertValidUF, UF } from '../constants/brazilian-states';
+import { InvalidAmountError } from '../errors/invalid-amount.error';
 import { Entity } from './entity';
 
 export interface LoanEntityProps {

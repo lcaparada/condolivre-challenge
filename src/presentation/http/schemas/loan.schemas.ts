@@ -1,4 +1,4 @@
-import { BrazilianStateCode } from '@/domain/constants/brazilian-states';
+import { BrazilianStateCode } from '@/domain';
 import { z } from 'zod';
 
 export const createLoanSchema = z.object({

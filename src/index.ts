@@ -8,11 +8,11 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import 'dotenv/config';
-import { connectToDatabase } from '@/infrastructure/database/mongodb/mongo-connection';
-import { errorHandlerPlugin } from '@/presentation/http/plugins/error-handler.plugin';
 import { makeRepositories, makeServices, makeUseCases } from '@/factories';
 import { registerRoutes } from './presentation/http/routes';
 import { getLoggerConfig } from './config';
+import { errorHandlerPlugin } from './presentation/http/plugins';
+import { connectToDatabase } from './infrastructure';
 
 async function buildApp() {
   const app = Fastify({

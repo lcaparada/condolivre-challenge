@@ -1,6 +1,6 @@
 import { UF } from '@/domain/constants/brazilian-states';
 import { LoanEntity } from '@/domain/entities/loan.entity';
-import { CreateLoanInput, CreateLoanOutput } from '../dtos/create-loan.dto';
+import { CreateLoanInput, CreateLoanOutput } from '../../dtos/create-loan.dto';
 import { LoanRepository } from '@/domain/repositories/loan.repository';
 import { ConcentrationRiskService } from '@/domain/services/concentration-risk.service';
 

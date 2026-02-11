@@ -1,4 +1,4 @@
-import { CreateLoanUseCase } from '@/application/use-cases/create-loan.use-case';
+import { CreateLoanUseCase } from '@/application';
 import type { Repositories } from './make-repositories';
 import type { Services } from './make-services';
 

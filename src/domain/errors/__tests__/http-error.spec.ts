@@ -1,7 +1,7 @@
-import { isHttpError } from '../http-error.interface';
 import { ConcentrationLimitExceededError } from '../concentration-limit-exceeded.error';
-import { InvalidUFError } from '../invalid-uf.error';
+import { isHttpError } from '../http-error.interface';
 import { InvalidAmountError } from '../invalid-amount.error';
+import { InvalidUFError } from '../invalid-uf.error';
 
 describe('HttpError Interface', () => {
   describe('isHttpError', () => {

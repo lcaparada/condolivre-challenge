@@ -1,4 +1,4 @@
-import { InvalidUFError } from '../errors';
+import { InvalidUFError } from '../errors/invalid-uf.error';
 
 export enum BrazilianStateCode {
   AC = 'AC',

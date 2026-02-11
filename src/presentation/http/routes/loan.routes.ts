@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
-import { LoanController } from '../controllers/loan.controllers';
-import { CreateLoanUseCase } from '@/application/use-cases/create-loan.use-case';
 import { createLoanResponseSchema, createLoanSchema, errorResponseSchema } from '../schemas';
+import { CreateLoanUseCase } from '@/application';
+import { LoanController } from '../controllers';
 
 interface LoanRoutesOptions {
   createLoanUseCase: CreateLoanUseCase;

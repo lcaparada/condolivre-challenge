@@ -1,4 +1,4 @@
-import { ConcentrationRiskService } from '@/domain/services/concentration-risk.service';
+import { ConcentrationRiskService } from '@/domain';
 import type { Repositories } from './make-repositories';
 
 export function makeServices(repositories: Repositories) {

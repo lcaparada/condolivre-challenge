@@ -1,6 +1,6 @@
-import { CreateLoanUseCase } from '@/application/use-cases/create-loan.use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { createLoanSchema } from '../schemas';
+import { CreateLoanUseCase } from '@/application';
 
 export class LoanController {
   constructor(private readonly createLoanUseCase: CreateLoanUseCase) {}
