@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "dotenv -e .env -- tsx --watch src/index.ts",
     "seed": "dotenv -e .env -- tsx src/infrastructure/database/mongodb/seeds/run-seeds.ts",
-    "test": "dotenv -e .env.test -- jest"
+    "test": "dotenv -e .env.test.local -- jest"
   },
   "keywords": [],
   "author": "",
