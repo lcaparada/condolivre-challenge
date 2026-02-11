@@ -10,6 +10,15 @@ export class MongoLoanRepository implements LoanRepository {
     this.collection = db.collection<LoanDocument>('loans');
   }
 
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ uf: 1 }, { background: true });
+
+    await this.collection.createIndex(
+      { uf: 1, amount: 1 },
+      { background: true, name: 'uf_amount_idx' }
+    );
+  }
+
   async save(loan: LoanEntity): Promise<LoanEntity> {
     const doc: LoanDocument = {
       _id: new ObjectId(),

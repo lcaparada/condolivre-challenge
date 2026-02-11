@@ -9,7 +9,7 @@ describe('MongoLoanRepository', () => {
 
   beforeAll(async () => {
     db = await connectToDatabase();
-  });
+  }, 15000); // 15s timeout for connection
 
   afterAll(async () => {
     await disconnectFromDatabase();
@@ -18,6 +18,28 @@ describe('MongoLoanRepository', () => {
   beforeEach(async () => {
     repository = new MongoLoanRepository(db);
     await db.collection('loans').deleteMany({});
+    await repository.ensureIndexes();
+  });
+
+  describe('ensureIndexes', () => {
+    it('creates indexes on uf field', async () => {
+      await repository.ensureIndexes();
+
+      const indexes = await db.collection('loans').indexes();
+      const ufIndex = indexes.find((idx) => idx.key.uf === 1 && Object.keys(idx.key).length === 1);
+
+      expect(ufIndex).toBeDefined();
+    });
+
+    it('creates compound index on uf and amount', async () => {
+      await repository.ensureIndexes();
+
+      const indexes = await db.collection('loans').indexes();
+      const compoundIndex = indexes.find((idx) => idx.name === 'uf_amount_idx');
+
+      expect(compoundIndex).toBeDefined();
+      expect(compoundIndex?.key).toEqual({ uf: 1, amount: 1 });
+    });
   });
 
   describe('save', () => {
