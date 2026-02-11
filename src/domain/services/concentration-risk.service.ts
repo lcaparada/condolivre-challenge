@@ -1,12 +1,6 @@
 import type { UF } from '../constants/brazilian-states';
-import { DEFAULT_STATE_LIMIT, STATE_LIMITS } from '../constants/concentration-limits';
 import { ConcentrationLimitExceededError } from '../errors';
-
-const limitsByUf = new Map<string, number>(STATE_LIMITS.map((c) => [c.uf, c.limit]));
-
-function getLimitForState(uf: string): number {
-  return limitsByUf.get(uf.toUpperCase()) ?? DEFAULT_STATE_LIMIT;
-}
+import type { ConcentrationLimitRepository } from '../repositories/concentration-limit.repository';
 
 export interface ConcentrationValidationInput {
   totalPortfolioAmount: number;
@@ -15,35 +9,40 @@ export interface ConcentrationValidationInput {
   newLoanUf: UF | string;
 }
 
-export function validateConcentration({
-  newLoanUf,
-  newLoanAmount,
-  amountByState,
-  totalPortfolioAmount,
-}: ConcentrationValidationInput): void {
-  const newTotal = totalPortfolioAmount + newLoanAmount;
+export class ConcentrationRiskService {
+  constructor(private limitRepository: ConcentrationLimitRepository) {}
 
-  if (newTotal <= 0) {
-    return;
-  }
+  async validateConcentration({
+    newLoanUf,
+    newLoanAmount,
+    amountByState,
+    totalPortfolioAmount,
+  }: ConcentrationValidationInput): Promise<void> {
+    const newTotal = totalPortfolioAmount + newLoanAmount;
 
-  if (totalPortfolioAmount === 0) {
-    return;
-  }
+    if (newTotal <= 0) {
+      return;
+    }
 
-  const uf = newLoanUf.toUpperCase();
-  const limit = getLimitForState(uf);
+    if (totalPortfolioAmount === 0) {
+      return;
+    }
 
-  const currentStateAmount = amountByState[uf] ?? 0;
-  const newStateAmount = currentStateAmount + newLoanAmount;
-  const newShare = newStateAmount / newTotal;
+    const uf = newLoanUf.toUpperCase() as UF;
+    const stateLimit = await this.limitRepository.getLimitForState(uf);
+    const limit = stateLimit ?? (await this.limitRepository.getDefaultLimit());
 
-  if (newShare > limit) {
-    throw new ConcentrationLimitExceededError(
-      `Concentration limit exceeded for ${uf}: ${(newShare * 100).toFixed(2)}% would exceed ${limit * 100}% limit`,
-      uf,
-      newShare,
-      limit
-    );
+    const currentStateAmount = amountByState[uf] ?? 0;
+    const newStateAmount = currentStateAmount + newLoanAmount;
+    const newShare = newStateAmount / newTotal;
+
+    if (newShare > limit) {
+      throw new ConcentrationLimitExceededError(
+        `Concentration limit exceeded for ${uf}: ${(newShare * 100).toFixed(2)}% would exceed ${limit * 100}% limit`,
+        uf,
+        newShare,
+        limit
+      );
+    }
   }
 }
