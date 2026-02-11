@@ -1,0 +1,22 @@
+import { randomUUID } from 'node:crypto';
+
+export abstract class Entity<Props = unknown> {
+  private readonly _id: string;
+  public readonly props: Props;
+
+  constructor(props: Props, id?: string) {
+    this.props = props;
+    this._id = id ?? randomUUID();
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  toJSON(): Props & { id: string } {
+    return {
+      id: this._id,
+      ...this.props,
+    };
+  }
+}
