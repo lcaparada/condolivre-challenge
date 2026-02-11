@@ -6,8 +6,8 @@ export class LoanController {
   constructor(private readonly createLoanUseCase: CreateLoanUseCase) {}
 
   createLoan = async (req: FastifyRequest, rep: FastifyReply) => {
-    const { amount, uf } = createLoanSchema.parse(req.body);
-    const loan = await this.createLoanUseCase.execute({ amount, uf });
+    const { amountInCents, uf } = createLoanSchema.parse(req.body);
+    const loan = await this.createLoanUseCase.execute({ amountInCents, uf });
     return rep.status(201).send(loan);
   };
 }

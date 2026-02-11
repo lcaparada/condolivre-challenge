@@ -84,13 +84,13 @@ describe('makeUseCases', () => {
   it('correctly wires dependencies for CreateLoanUseCase', async () => {
     const useCases = makeUseCases(mockRepositories, mockServices);
 
-    mockLoanRepository.getTotalAmount.mockResolvedValue(100_000);
-    mockLoanRepository.getAmountByState.mockResolvedValue({ SP: 10_000 });
+    mockLoanRepository.getTotalAmount.mockResolvedValue(10_000_000);
+    mockLoanRepository.getAmountByState.mockResolvedValue({ SP: 1_000_000 });
     mockLoanRepository.save.mockImplementation(async (loan) => loan);
     mockConcentrationRiskService.validateConcentration.mockResolvedValue(undefined);
 
     const result = await useCases.createLoanUseCase.execute({
-      amount: 5_000,
+      amountInCents: 500_000,
       uf: 'RJ',
     });
 
@@ -99,7 +99,8 @@ describe('makeUseCases', () => {
     expect(mockConcentrationRiskService.validateConcentration).toHaveBeenCalled();
     expect(mockLoanRepository.save).toHaveBeenCalled();
     expect(result).toHaveProperty('id');
-    expect(result).toHaveProperty('amount', 5_000);
+    expect(result).toHaveProperty('amountInCents', 500_000);
     expect(result).toHaveProperty('uf', 'RJ');
+    expect(result).toHaveProperty('createdAt');
   });
 });

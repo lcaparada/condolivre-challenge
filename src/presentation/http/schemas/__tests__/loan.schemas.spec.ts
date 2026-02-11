@@ -5,14 +5,14 @@ describe('Loan Schemas', () => {
   describe('createLoanSchema', () => {
     it('validates valid loan input', () => {
       const validInput = {
-        amount: 10_000,
+        amountInCents: 1_000_000,
         uf: BrazilianStateCode.SP,
       };
 
       const result = createLoanSchema.safeParse(validInput);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.amount).toBe(10_000);
+        expect(result.data.amountInCents).toBe(1_000_000);
         expect(result.data.uf).toBe(BrazilianStateCode.SP);
       }
     });
@@ -20,7 +20,7 @@ describe('Loan Schemas', () => {
     it('validates all valid UFs', () => {
       Object.values(BrazilianStateCode).forEach((uf) => {
         const result = createLoanSchema.safeParse({
-          amount: 1_000,
+          amountInCents: 100_000,
           uf,
         });
         expect(result.success).toBe(true);
@@ -29,7 +29,7 @@ describe('Loan Schemas', () => {
 
     it('rejects invalid UF', () => {
       const invalidInput = {
-        amount: 10_000,
+        amountInCents: 1_000_000,
         uf: 'XX',
       };
 
@@ -39,7 +39,7 @@ describe('Loan Schemas', () => {
 
     it('rejects negative amount', () => {
       const invalidInput = {
-        amount: -100,
+        amountInCents: -100,
         uf: BrazilianStateCode.RJ,
       };
 
@@ -49,7 +49,7 @@ describe('Loan Schemas', () => {
 
     it('rejects zero amount', () => {
       const invalidInput = {
-        amount: 0,
+        amountInCents: 0,
         uf: BrazilianStateCode.SP,
       };
 
@@ -68,7 +68,7 @@ describe('Loan Schemas', () => {
 
     it('rejects missing uf', () => {
       const invalidInput = {
-        amount: 10_000,
+        amountInCents: 1_000_000,
       };
 
       const result = createLoanSchema.safeParse(invalidInput);
@@ -77,7 +77,7 @@ describe('Loan Schemas', () => {
 
     it('rejects non-number amount', () => {
       const invalidInput = {
-        amount: '10000',
+        amountInCents: '10000',
         uf: BrazilianStateCode.SP,
       };
 
@@ -85,14 +85,14 @@ describe('Loan Schemas', () => {
       expect(result.success).toBe(false);
     });
 
-    it('accepts decimal amounts', () => {
-      const validInput = {
-        amount: 10_000.50,
+    it('rejects decimal amounts', () => {
+      const invalidInput = {
+        amountInCents: 10_000.50,
         uf: BrazilianStateCode.MG,
       };
 
-      const result = createLoanSchema.safeParse(validInput);
-      expect(result.success).toBe(true);
+      const result = createLoanSchema.safeParse(invalidInput);
+      expect(result.success).toBe(false);
     });
   });
 
@@ -100,16 +100,18 @@ describe('Loan Schemas', () => {
     it('validates valid loan response', () => {
       const validResponse = {
         id: '550e8400-e29b-41d4-a716-446655440000',
-        amount: 10_000,
+        amountInCents: 1_000_000,
         uf: BrazilianStateCode.SP,
+        createdAt: new Date('2024-01-15T10:00:00Z'),
       };
 
       const result = createLoanResponseSchema.safeParse(validResponse);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.id).toBe('550e8400-e29b-41d4-a716-446655440000');
-        expect(result.data.amount).toBe(10_000);
+        expect(result.data.amountInCents).toBe(1_000_000);
         expect(result.data.uf).toBe(BrazilianStateCode.SP);
+        expect(result.data.createdAt).toBeInstanceOf(Date);
       }
     });
 
@@ -117,8 +119,9 @@ describe('Loan Schemas', () => {
       Object.values(BrazilianStateCode).forEach((uf) => {
         const result = createLoanResponseSchema.safeParse({
           id: 'test-id',
-          amount: 1_000,
+          amountInCents: 100_000,
           uf,
+          createdAt: new Date(),
         });
         expect(result.success).toBe(true);
       });
@@ -126,8 +129,9 @@ describe('Loan Schemas', () => {
 
     it('rejects missing id', () => {
       const invalidResponse = {
-        amount: 10_000,
+        amountInCents: 1_000_000,
         uf: BrazilianStateCode.SP,
+        createdAt: new Date(),
       };
 
       const result = createLoanResponseSchema.safeParse(invalidResponse);
@@ -138,6 +142,7 @@ describe('Loan Schemas', () => {
       const invalidResponse = {
         id: 'test-id',
         uf: BrazilianStateCode.SP,
+        createdAt: new Date(),
       };
 
       const result = createLoanResponseSchema.safeParse(invalidResponse);
@@ -147,7 +152,19 @@ describe('Loan Schemas', () => {
     it('rejects missing uf', () => {
       const invalidResponse = {
         id: 'test-id',
-        amount: 10_000,
+        amountInCents: 1_000_000,
+        createdAt: new Date(),
+      };
+
+      const result = createLoanResponseSchema.safeParse(invalidResponse);
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects missing createdAt', () => {
+      const invalidResponse = {
+        id: 'test-id',
+        amountInCents: 1_000_000,
+        uf: BrazilianStateCode.SP,
       };
 
       const result = createLoanResponseSchema.safeParse(invalidResponse);
@@ -157,8 +174,21 @@ describe('Loan Schemas', () => {
     it('rejects invalid UF in response', () => {
       const invalidResponse = {
         id: 'test-id',
-        amount: 10_000,
+        amountInCents: 1_000_000,
         uf: 'INVALID',
+        createdAt: new Date(),
+      };
+
+      const result = createLoanResponseSchema.safeParse(invalidResponse);
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects decimal amounts in response', () => {
+      const invalidResponse = {
+        id: 'test-id',
+        amountInCents: 100.50,
+        uf: BrazilianStateCode.SP,
+        createdAt: new Date(),
       };
 
       const result = createLoanResponseSchema.safeParse(invalidResponse);
@@ -166,10 +196,11 @@ describe('Loan Schemas', () => {
     });
 
     it('accepts any string as id', () => {
+      const createdAt = new Date();
       const responses = [
-        { id: 'uuid-format', amount: 100, uf: BrazilianStateCode.AC },
-        { id: '123', amount: 100, uf: BrazilianStateCode.AL },
-        { id: 'custom-id-123', amount: 100, uf: BrazilianStateCode.AM },
+        { id: 'uuid-format', amountInCents: 10_000, uf: BrazilianStateCode.AC, createdAt },
+        { id: '123', amountInCents: 10_000, uf: BrazilianStateCode.AL, createdAt },
+        { id: 'custom-id-123', amountInCents: 10_000, uf: BrazilianStateCode.AM, createdAt },
       ];
 
       responses.forEach((response) => {

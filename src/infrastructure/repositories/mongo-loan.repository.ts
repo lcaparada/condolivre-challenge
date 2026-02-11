@@ -11,19 +11,20 @@ export class MongoLoanRepository implements LoanRepository {
   }
 
   async ensureIndexes(): Promise<void> {
-    await this.collection.createIndex({ uf: 1 }, { background: true });
-
     await this.collection.createIndex(
-      { uf: 1, amount: 1 },
+      { uf: 1, amountInCents: 1 },
       { background: true, name: 'uf_amount_idx' }
     );
+
+    await this.collection.createIndex({ createdAt: 1 }, { background: true });
   }
 
   async save(loan: LoanEntity): Promise<LoanEntity> {
     const doc: LoanDocument = {
       _id: new ObjectId(),
-      amount: loan.amount,
+      amountInCents: loan.amountInCents,
       uf: loan.uf,
+      createdAt: loan.createdAt,
     };
 
     await this.collection.insertOne(doc);
@@ -37,7 +38,7 @@ export class MongoLoanRepository implements LoanRepository {
         {
           $group: {
             _id: null,
-            total: { $sum: '$amount' },
+            total: { $sum: '$amountInCents' },
           },
         },
       ])
@@ -52,7 +53,7 @@ export class MongoLoanRepository implements LoanRepository {
         {
           $group: {
             _id: '$uf',
-            total: { $sum: '$amount' },
+            total: { $sum: '$amountInCents' },
           },
         },
       ])

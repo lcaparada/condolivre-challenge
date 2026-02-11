@@ -4,10 +4,18 @@ import { UF } from '../../../../domain/constants/brazilian-states';
 
 export interface LoanDocument {
   _id: ObjectId;
-  amount: number;
+  amountInCents: number;
   uf: string;
+  createdAt: Date;
 }
 
 export function toLoanEntity(doc: LoanDocument): LoanEntity {
-  return new LoanEntity({ amount: doc.amount, uf: doc.uf as UF }, doc._id.toString());
+  return new LoanEntity(
+    {
+      amountInCents: doc.amountInCents,
+      uf: doc.uf as UF,
+      createdAt: doc.createdAt,
+    },
+    doc._id.toString()
+  );
 }

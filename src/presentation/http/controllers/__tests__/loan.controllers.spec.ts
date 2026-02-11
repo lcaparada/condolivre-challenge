@@ -26,21 +26,22 @@ describe('LoanController', () => {
     it('calls use case with correct parameters', async () => {
       mockRequest = {
         body: {
-          amount: 10_000,
+          amountInCents: 1_000_000,
           uf: BrazilianStateCode.SP,
         },
       };
 
       mockCreateLoanUseCase.execute.mockResolvedValue({
         id: 'test-id',
-        amount: 10_000,
+        amountInCents: 1_000_000,
         uf: BrazilianStateCode.SP,
+        createdAt: new Date(),
       });
 
       await controller.createLoan(mockRequest as FastifyRequest, mockReply as FastifyReply);
 
       expect(mockCreateLoanUseCase.execute).toHaveBeenCalledWith({
-        amount: 10_000,
+        amountInCents: 1_000_000,
         uf: BrazilianStateCode.SP,
       });
       expect(mockCreateLoanUseCase.execute).toHaveBeenCalledTimes(1);
@@ -49,15 +50,16 @@ describe('LoanController', () => {
     it('returns status 201 on success', async () => {
       mockRequest = {
         body: {
-          amount: 5_000,
+          amountInCents: 500_000,
           uf: BrazilianStateCode.RJ,
         },
       };
 
       mockCreateLoanUseCase.execute.mockResolvedValue({
         id: 'loan-123',
-        amount: 5_000,
+        amountInCents: 500_000,
         uf: BrazilianStateCode.RJ,
+        createdAt: new Date(),
       });
 
       await controller.createLoan(mockRequest as FastifyRequest, mockReply as FastifyReply);
@@ -68,13 +70,14 @@ describe('LoanController', () => {
     it('sends the use case result', async () => {
       const expectedResult = {
         id: 'loan-456',
-        amount: 15_000,
+        amountInCents: 1_500_000,
         uf: BrazilianStateCode.MG,
+        createdAt: new Date(),
       };
 
       mockRequest = {
         body: {
-          amount: 15_000,
+          amountInCents: 1_500_000,
           uf: BrazilianStateCode.MG,
         },
       };
@@ -89,7 +92,7 @@ describe('LoanController', () => {
     it('validates request body with schema', async () => {
       mockRequest = {
         body: {
-          amount: -100,
+          amountInCents: -100,
           uf: BrazilianStateCode.SP,
         },
       };
@@ -104,7 +107,7 @@ describe('LoanController', () => {
     it('rejects invalid UF through schema validation', async () => {
       mockRequest = {
         body: {
-          amount: 10_000,
+          amountInCents: 1_000_000,
           uf: 'INVALID_UF',
         },
       };
@@ -133,7 +136,7 @@ describe('LoanController', () => {
     it('rejects missing uf', async () => {
       mockRequest = {
         body: {
-          amount: 10_000,
+          amountInCents: 1_000_000,
         },
       };
 
@@ -147,7 +150,7 @@ describe('LoanController', () => {
     it('propagates use case errors', async () => {
       mockRequest = {
         body: {
-          amount: 10_000,
+          amountInCents: 1_000_000,
           uf: BrazilianStateCode.SP,
         },
       };

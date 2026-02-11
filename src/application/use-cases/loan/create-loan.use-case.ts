@@ -12,7 +12,7 @@ export class CreateLoanUseCase {
 
   async execute(input: CreateLoanInput): Promise<CreateLoanOutput> {
     const loan = new LoanEntity({
-      amount: input.amount,
+      amountInCents: input.amountInCents,
       uf: input.uf as UF,
     });
 
@@ -22,7 +22,7 @@ export class CreateLoanUseCase {
     await this.concentrationRiskService.validateConcentration({
       totalPortfolioAmount,
       amountByState,
-      newLoanAmount: loan.amount,
+      newLoanAmount: loan.amountInCents,
       newLoanUf: loan.uf,
     });
 
@@ -30,8 +30,9 @@ export class CreateLoanUseCase {
 
     return {
       id: savedLoan.id,
-      amount: savedLoan.amount,
+      amountInCents: savedLoan.amountInCents,
       uf: savedLoan.uf,
+      createdAt: savedLoan.createdAt,
     };
   }
 }

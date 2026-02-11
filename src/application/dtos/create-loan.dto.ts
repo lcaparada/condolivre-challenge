@@ -1,12 +1,13 @@
 import type { UF } from '../../domain/constants/brazilian-states';
 
 export interface CreateLoanInput {
-  amount: number;
+  amountInCents: number;
   uf: string;
 }
 
 export interface CreateLoanOutput {
   id: string;
-  amount: number;
+  amountInCents: number;
   uf: UF;
+  createdAt: Date;
 }

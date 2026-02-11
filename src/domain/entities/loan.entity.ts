@@ -3,8 +3,9 @@ import { InvalidAmountError } from '../errors/invalid-amount.error';
 import { Entity } from './entity';
 
 export interface LoanEntityProps {
-  amount: number;
+  amountInCents: number;
   uf: UF;
+  createdAt?: Date;
 }
 
 export class LoanEntity extends Entity<LoanEntityProps> {
@@ -14,6 +15,7 @@ export class LoanEntity extends Entity<LoanEntityProps> {
       {
         ...props,
         uf: props.uf.toUpperCase() as UF,
+        createdAt: props.createdAt ?? new Date(),
       },
       id
     );
@@ -21,16 +23,23 @@ export class LoanEntity extends Entity<LoanEntityProps> {
 
   static validate(props: LoanEntityProps) {
     assertValidUF(props.uf);
-    if (props.amount <= 0) {
-      throw new InvalidAmountError(props.amount);
+    if (props.amountInCents <= 0) {
+      throw new InvalidAmountError(props.amountInCents);
+    }
+    if (!Number.isInteger(props.amountInCents)) {
+      throw new InvalidAmountError(props.amountInCents);
     }
   }
 
-  get amount() {
-    return this.props.amount;
+  get amountInCents() {
+    return this.props.amountInCents;
   }
 
   get uf() {
     return this.props.uf;
+  }
+
+  get createdAt() {
+    return this.props.createdAt!;
   }
 }
