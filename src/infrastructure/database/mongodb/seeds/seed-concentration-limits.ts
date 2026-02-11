@@ -3,7 +3,6 @@ import { Db, ObjectId } from 'mongodb';
 export async function seedConcentrationLimits(db: Db): Promise<void> {
   const collection = db.collection('concentration_limits');
 
-  // Check if already seeded
   const count = await collection.countDocuments({});
   if (count > 0) {
     console.log('Concentration limits already seeded, skipping...');
