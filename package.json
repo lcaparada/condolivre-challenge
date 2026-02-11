@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "env-cmd -f .env tsx --watch src/index.ts",
-    "test": "env-cmd -f .env.test jest",
-    "seed": "tsx src/infrastructure/database/mongodb/seeds/run-seeds.ts"
+    "dev": "dotenv -e .env -- tsx --watch src/index.ts",
+    "seed": "dotenv -e .env -- tsx src/infrastructure/database/mongodb/seeds/run-seeds.ts",
+    "test": "dotenv -e .env.test -- jest"
   },
   "keywords": [],
   "author": "",

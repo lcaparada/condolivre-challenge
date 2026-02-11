@@ -12,10 +12,11 @@ import { connectToDatabase } from '@/infrastructure/database/mongodb/mongo-conne
 import { errorHandlerPlugin } from '@/presentation/http/plugins/error-handler.plugin';
 import { makeRepositories, makeServices, makeUseCases } from '@/factories';
 import { registerRoutes } from './presentation/http/routes';
+import { getLoggerConfig } from './config';
 
 async function buildApp() {
   const app = Fastify({
-    logger: true,
+    logger: getLoggerConfig(),
   }).withTypeProvider<ZodTypeProvider>();
 
   app.log.info('Connecting to MongoDB...');
