@@ -33,6 +33,20 @@ describe('LoanEntity', () => {
     });
   });
 
+  describe('when created with invalid amount', () => {
+    it('throws when amount is zero', () => {
+      expect(() => new LoanEntity({ amount: 0, uf: 'SP' })).toThrow(
+        'Amount must be greater than 0'
+      );
+    });
+
+    it('throws when amount is negative', () => {
+      expect(() => new LoanEntity({ amount: -100, uf: 'RJ' })).toThrow(
+        'Amount must be greater than 0'
+      );
+    });
+  });
+
   describe('when created with invalid UF', () => {
     it('throws for invalid state code', () => {
       expect(() => new LoanEntity({ amount: 1_000, uf: 'XX' } as never)).toThrow(

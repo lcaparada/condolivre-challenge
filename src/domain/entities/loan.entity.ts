@@ -8,14 +8,15 @@ export interface LoanEntityProps {
 
 export class LoanEntity extends Entity<LoanEntityProps> {
   constructor(props: LoanEntityProps, id?: string) {
+    LoanEntity.validate(props);
+    super(props, id);
+  }
+
+  static validate(props: LoanEntityProps) {
     assertValidUF(props.uf);
-    super(
-      {
-        ...props,
-        uf: props.uf.toUpperCase() as UF,
-      },
-      id
-    );
+    if (props.amount <= 0) {
+      throw new Error('Amount must be greater than 0');
+    }
   }
 
   get amount() {
