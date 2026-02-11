@@ -1,29 +1,30 @@
+import { BrazilianStateCode } from '@/domain/constants/brazilian-states';
 import { LoanEntity } from '../loan.entity';
 
 describe('LoanEntity', () => {
   describe('when created with valid props', () => {
     it('creates entity with amount and uf', () => {
-      const loan = new LoanEntity({ amount: 10_000, uf: 'SP' });
+      const loan = new LoanEntity({ amount: 10_000, uf: BrazilianStateCode.SP });
 
       expect(loan.amount).toBe(10_000);
       expect(loan.uf).toBe('SP');
     });
 
     it('exposes id', () => {
-      const loan = new LoanEntity({ amount: 1_000, uf: 'RJ' });
+      const loan = new LoanEntity({ amount: 1_000, uf: BrazilianStateCode.RJ });
 
       expect(loan.id).toBeDefined();
       expect(typeof loan.id).toBe('string');
     });
 
     it('accepts optional id', () => {
-      const loan = new LoanEntity({ amount: 1_000, uf: 'MG' }, 'custom-id');
+      const loan = new LoanEntity({ amount: 1_000, uf: BrazilianStateCode.MG }, 'custom-id');
 
       expect(loan.id).toBe('custom-id');
     });
 
     it('toJSON returns id, amount and uf', () => {
-      const loan = new LoanEntity({ amount: 15_000, uf: 'PR' }, 'loan-123');
+      const loan = new LoanEntity({ amount: 15_000, uf: BrazilianStateCode.PR }, 'loan-123');
 
       expect(loan.toJSON()).toEqual({
         id: 'loan-123',
@@ -35,13 +36,13 @@ describe('LoanEntity', () => {
 
   describe('when created with invalid amount', () => {
     it('throws when amount is zero', () => {
-      expect(() => new LoanEntity({ amount: 0, uf: 'SP' })).toThrow(
+      expect(() => new LoanEntity({ amount: 0, uf: BrazilianStateCode.SP })).toThrow(
         'Amount must be greater than 0'
       );
     });
 
     it('throws when amount is negative', () => {
-      expect(() => new LoanEntity({ amount: -100, uf: 'RJ' })).toThrow(
+      expect(() => new LoanEntity({ amount: -100, uf: BrazilianStateCode.RJ })).toThrow(
         'Amount must be greater than 0'
       );
     });
@@ -49,9 +50,7 @@ describe('LoanEntity', () => {
 
   describe('when created with invalid UF', () => {
     it('throws for invalid state code', () => {
-      expect(() => new LoanEntity({ amount: 1_000, uf: 'XX' } as never)).toThrow(
-        'Invalid UF: "XX"'
-      );
+      expect(() => new LoanEntity({ amount: 1_000, uf: 'XX' } as never)).toThrow('Invalid UF: XX');
     });
 
     it('throws for empty string', () => {

@@ -1,36 +1,38 @@
-export const BRAZILIAN_STATE_CODES = [
-  'AC',
-  'AL',
-  'AP',
-  'AM',
-  'BA',
-  'CE',
-  'DF',
-  'ES',
-  'GO',
-  'MA',
-  'MT',
-  'MS',
-  'MG',
-  'PA',
-  'PB',
-  'PR',
-  'PE',
-  'PI',
-  'RJ',
-  'RN',
-  'RS',
-  'RO',
-  'RR',
-  'SC',
-  'SP',
-  'SE',
-  'TO',
-] as const;
+import { InvalidUFError } from '../errors';
 
-export type UF = (typeof BRAZILIAN_STATE_CODES)[number];
+export enum BrazilianStateCode {
+  AC = 'AC',
+  AL = 'AL',
+  AP = 'AP',
+  AM = 'AM',
+  BA = 'BA',
+  CE = 'CE',
+  DF = 'DF',
+  ES = 'ES',
+  GO = 'GO',
+  MA = 'MA',
+  MT = 'MT',
+  MS = 'MS',
+  MG = 'MG',
+  PA = 'PA',
+  PB = 'PB',
+  PR = 'PR',
+  PE = 'PE',
+  PI = 'PI',
+  RJ = 'RJ',
+  RN = 'RN',
+  RS = 'RS',
+  RO = 'RO',
+  RR = 'RR',
+  SC = 'SC',
+  SP = 'SP',
+  SE = 'SE',
+  TO = 'TO',
+}
 
-const VALID_UFS = new Set<string>(BRAZILIAN_STATE_CODES);
+export type UF = BrazilianStateCode;
+
+const VALID_UFS = new Set<string>(Object.values(BrazilianStateCode));
 
 export function isValidUF(value: string): value is UF {
   return VALID_UFS.has(value.toUpperCase());
@@ -38,6 +40,6 @@ export function isValidUF(value: string): value is UF {
 
 export function assertValidUF(value: string): asserts value is UF {
   if (!isValidUF(value)) {
-    throw new Error(`Invalid UF: "${value}". Must be one of: ${BRAZILIAN_STATE_CODES.join(', ')}`);
+    throw new InvalidUFError(value);
   }
 }

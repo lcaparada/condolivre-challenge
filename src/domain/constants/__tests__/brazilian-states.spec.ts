@@ -1,24 +1,20 @@
-import {
-  BRAZILIAN_STATE_CODES,
-  assertValidUF,
-  isValidUF,
-} from '../brazilian-states';
+import { BrazilianStateCode, assertValidUF, isValidUF } from '../brazilian-states';
 
 describe('BRAZILIAN_STATE_CODES', () => {
   it('contains 27 units (26 states + DF)', () => {
-    expect(BRAZILIAN_STATE_CODES).toHaveLength(27);
+    expect(Object.values(BrazilianStateCode)).toHaveLength(27);
   });
 
   it('contains only uppercase two-letter codes', () => {
     const twoLetterUpper = /^[A-Z]{2}$/;
-    BRAZILIAN_STATE_CODES.forEach((code) => {
+    Object.values(BrazilianStateCode).forEach((code) => {
       expect(code).toMatch(twoLetterUpper);
     });
   });
 
   it('includes SP and DF', () => {
-    expect(BRAZILIAN_STATE_CODES).toContain('SP');
-    expect(BRAZILIAN_STATE_CODES).toContain('DF');
+    expect(Object.values(BrazilianStateCode)).toContain('SP');
+    expect(Object.values(BrazilianStateCode)).toContain('DF');
   });
 });
 
@@ -54,8 +50,7 @@ describe('assertValidUF', () => {
   });
 
   it('throws for invalid UF with descriptive message', () => {
-    expect(() => assertValidUF('XX')).toThrow('Invalid UF: "XX"');
-    expect(() => assertValidUF('XX')).toThrow('Must be one of:');
+    expect(() => assertValidUF('XX')).toThrow('Invalid UF: XX');
   });
 
   it('throws Error instance', () => {
