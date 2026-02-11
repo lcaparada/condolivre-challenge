@@ -9,11 +9,22 @@ export const connectToDatabase = async (): Promise<Db> => {
   }
 
   const uri =
-    process.env.NODE_ENV === 'test'
-      ? process.env.MONGODB_URI_TEST!
-      : process.env.MONGODB_URI!;
+    process.env.NODE_ENV === 'test' ? process.env.MONGODB_URI_TEST : process.env.MONGODB_URI;
 
-  const client = new MongoClient(uri);
+  if (!uri) {
+    throw new Error(
+      `Missing required environment variable: ${
+        process.env.NODE_ENV === 'test' ? 'MONGODB_URI_TEST' : 'MONGODB_URI'
+      }`
+    );
+  }
+
+  const client = new MongoClient(uri, {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 10,
+  });
+
   await client.connect();
   cachedClient = client;
   cachedDb = client.db();

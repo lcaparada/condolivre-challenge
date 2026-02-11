@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import helmet from '@fastify/helmet';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import {
@@ -12,12 +13,23 @@ import { makeRepositories, makeServices, makeUseCases } from '@/factories';
 import { registerRoutes } from './presentation/http/routes';
 import { getLoggerConfig } from './config';
 import { errorHandlerPlugin } from './presentation/http/plugins';
-import { connectToDatabase } from './infrastructure';
+import { connectToDatabase, disconnectFromDatabase } from './infrastructure';
 
 async function buildApp() {
   const app = Fastify({
     logger: getLoggerConfig(),
   }).withTypeProvider<ZodTypeProvider>();
+
+  await app.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
+  });
 
   app.log.info('Connecting to MongoDB...');
   const db = await connectToDatabase();
@@ -63,8 +75,28 @@ async function buildApp() {
 
 const bootstrap = async () => {
   const app = await buildApp();
+
+  const PORT = parseInt(process.env.PORT || '3333', 10);
+  const HOST = process.env.HOST || '0.0.0.0';
+
+  const shutdown = async (signal: string) => {
+    app.log.info(`${signal} received, closing gracefully...`);
+    try {
+      await app.close();
+      await disconnectFromDatabase();
+      app.log.info('Application closed successfully');
+      process.exit(0);
+    } catch (err) {
+      app.log.error(err, 'Error during shutdown');
+      process.exit(1);
+    }
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+
   try {
-    await app.listen({ port: 3333, host: '0.0.0.0' });
+    await app.listen({ port: PORT, host: HOST });
   } catch (err) {
     app.log.error(err);
     process.exit(1);
