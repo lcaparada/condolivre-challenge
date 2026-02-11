@@ -1,4 +1,4 @@
-import { Collection, Db, ObjectId, MongoServerError } from 'mongodb';
+import { Collection, Db, ObjectId, MongoServerError, Document } from 'mongodb';
 import type { LoanRepository } from '../../domain/repositories/loan.repository';
 import { LoanEntity } from '../../domain/entities/loan.entity';
 import { LoanDocument, toLoanEntity } from '../database/mongodb/models/loan.model';
@@ -11,14 +11,20 @@ export class MongoLoanRepository implements LoanRepository {
   }
 
   async ensureIndexes(): Promise<void> {
-    // Verifica índices existentes
-    const existingIndexes = await this.collection.indexes();
-    const indexNames = existingIndexes.map((idx) => idx.name);
+    let existingIndexes: Document[];
+    try {
+      existingIndexes = await this.collection.indexes();
+    } catch (error) {
+      if (error instanceof MongoServerError && error.code === 26) {
+        existingIndexes = [];
+      } else {
+        throw error;
+      }
+    }
+    const indexNames = existingIndexes.map((idx) => idx.name as string);
 
-    // Se existe índice antigo com nome conflitante, remove
     if (indexNames.includes('uf_amount_idx')) {
       const existingIndex = existingIndexes.find((idx) => idx.name === 'uf_amount_idx');
-      // Verifica se a estrutura é diferente (amount vs amountInCents)
       if (existingIndex && existingIndex.key.amount !== undefined) {
         await this.collection.dropIndex('uf_amount_idx');
       }
