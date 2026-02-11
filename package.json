@@ -7,6 +7,12 @@
     "dev": "dotenv -e .env -- tsx --watch src/index.ts",
     "seed": "dotenv -e .env -- tsx src/infrastructure/database/mongodb/seeds/run-seeds.ts",
     "test": "dotenv -e .env.test.local -- jest",
+    "test:watch": "dotenv -e .env.test.local -- jest --watch",
+    "test:coverage": "dotenv -e .env.test.local -- jest --coverage",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "prepare": "husky"
   },
   "keywords": [],

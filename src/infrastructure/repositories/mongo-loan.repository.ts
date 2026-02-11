@@ -1,4 +1,4 @@
-import { Collection, Db, ObjectId } from 'mongodb';
+import { Collection, Db, ObjectId, MongoServerError } from 'mongodb';
 import type { LoanRepository } from '../../domain/repositories/loan.repository';
 import { LoanEntity } from '../../domain/entities/loan.entity';
 import { LoanDocument, toLoanEntity } from '../database/mongodb/models/loan.model';
@@ -11,12 +11,37 @@ export class MongoLoanRepository implements LoanRepository {
   }
 
   async ensureIndexes(): Promise<void> {
-    await this.collection.createIndex(
-      { uf: 1, amountInCents: 1 },
-      { background: true, name: 'uf_amount_idx' }
-    );
+    // Verifica índices existentes
+    const existingIndexes = await this.collection.indexes();
+    const indexNames = existingIndexes.map((idx) => idx.name);
 
-    await this.collection.createIndex({ createdAt: 1 }, { background: true });
+    // Se existe índice antigo com nome conflitante, remove
+    if (indexNames.includes('uf_amount_idx')) {
+      const existingIndex = existingIndexes.find((idx) => idx.name === 'uf_amount_idx');
+      // Verifica se a estrutura é diferente (amount vs amountInCents)
+      if (existingIndex && existingIndex.key.amount !== undefined) {
+        await this.collection.dropIndex('uf_amount_idx');
+      }
+    }
+
+    try {
+      await this.collection.createIndex(
+        { uf: 1, amountInCents: 1 },
+        { background: true, name: 'uf_amount_idx' }
+      );
+    } catch (error) {
+      if (error instanceof MongoServerError && error.code !== 86) {
+        throw error;
+      }
+    }
+
+    try {
+      await this.collection.createIndex({ createdAt: 1 }, { background: true });
+    } catch (error) {
+      if (error instanceof MongoServerError && error.code !== 86) {
+        throw error;
+      }
+    }
   }
 
   async save(loan: LoanEntity): Promise<LoanEntity> {
