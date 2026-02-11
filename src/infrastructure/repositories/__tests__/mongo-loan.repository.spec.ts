@@ -42,17 +42,6 @@ describe('MongoLoanRepository', () => {
       expect(compoundIndex?.key).toEqual({ uf: 1, amountInCents: 1 });
     });
 
-    it('creates index on createdAt field', async () => {
-      await repository.ensureIndexes();
-
-      const indexes = await db.collection('loans').indexes();
-      const createdAtIndex = indexes.find(
-        (idx) => idx.key.createdAt === 1 && Object.keys(idx.key).length === 1
-      );
-
-      expect(createdAtIndex).toBeDefined();
-    });
-
     it('is idempotent - can be called multiple times without error', async () => {
       await repository.ensureIndexes();
 
@@ -65,7 +54,7 @@ describe('MongoLoanRepository', () => {
       try {
         await db.collection('loans').dropIndexes();
       } catch {
-        // Ignora se não existir
+        // Ignore if it doesn't exist
       }
 
       await db.collection('loans').createIndex({ uf: 1, amount: 1 }, { name: 'uf_amount_idx' });

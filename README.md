@@ -2,14 +2,56 @@
 
 Sistema para gestão de empréstimos com controle automatizado de risco de concentração geográfica, desenvolvido como solução para o desafio técnico da CondoLivre.
 
+---
+
+## 🚀 Quick Start
+
+### Primeira vez? Execute:
+
+```bash
+make setup
+```
+
+Isso vai instalar dependências, subir o MongoDB no Docker e rodar os seeds.
+
+### Iniciar a aplicação:
+
+```bash
+make run
+```
+
+Isso vai:
+
+1. ✅ Iniciar MongoDB (Docker)
+2. ✅ Rodar seeds do banco
+3. ✅ Iniciar a API em modo desenvolvimento
+
+### Endpoints disponíveis:
+
+- 🌐 **API**: http://localhost:3333
+- 📚 **Swagger UI**: http://localhost:3333/docs
+- 🗄️ **MongoDB**: localhost:27017
+
+### Outros comandos úteis:
+
+```bash
+make test         # Roda todos os testes
+make docker-up    # Apenas inicia o MongoDB
+make docker-down  # Para o MongoDB
+make seed         # Apenas roda os seeds
+```
+
+---
+
 ## 📋 Sumário
 
+- [Quick Start](#-quick-start)
 - [Visão Geral](#visão-geral)
 - [Decisões de Arquitetura](#decisões-de-arquitetura)
 - [Stack Tecnológica](#stack-tecnológica)
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Decisões Técnicas Detalhadas](#decisões-técnicas-detalhadas)
-- [Como Executar](#como-executar)
+- [Como Executar (Detalhado)](#como-executar)
 - [Testes](#testes)
 
 ---
@@ -46,6 +88,7 @@ presentation/   → Interface HTTP (Fastify, controllers)
 ```
 
 **Por quê?**
+
 - ✅ Regras de negócio isoladas e testáveis
 - ✅ Fácil trocar MongoDB por outro banco
 - ✅ Fácil trocar Fastify por Express
@@ -69,6 +112,7 @@ class MongoLoanRepository implements LoanRepository {
 ```
 
 **Por quê?**
+
 - ✅ Domínio não depende de detalhes de implementação
 - ✅ Facilita testes (mocks)
 - ✅ Permite múltiplas implementações (MongoDB, PostgreSQL, in-memory)
@@ -76,6 +120,7 @@ class MongoLoanRepository implements LoanRepository {
 #### 3. **Camadas**
 
 ##### **Domain (Domínio)**
+
 - **Entidades**: `LoanEntity`, `Entity` (base)
 - **Value Objects**: `UF` (tipo brasileiro de estados)
 - **Domain Services**: `ConcentrationRiskService` (lógica complexa de domínio)
@@ -83,35 +128,42 @@ class MongoLoanRepository implements LoanRepository {
 - **Errors**: Erros específicos do domínio
 
 **Por quê?**
+
 - ✅ Lógica de negócio em um só lugar
 - ✅ Reutilizável em diferentes contextos
 - ✅ Testável sem dependências externas
 
 ##### **Application (Aplicação)**
+
 - **Use Cases**: `CreateLoanUseCase` (orquestra domínio e repositórios)
 - **DTOs**: Input/Output dos casos de uso
 
 **Por quê?**
+
 - ✅ Orquestra fluxo da aplicação
 - ✅ Transforma dados entre camadas
 - ✅ Coordena transações
 
 ##### **Infrastructure (Infraestrutura)**
+
 - **Repositórios MongoDB**: Implementação concreta
 - **Modelos/Schemas**: Mapeamento para banco de dados
 - **Database Connection**: Gerenciamento de conexão
 
 **Por quê?**
+
 - ✅ Isola detalhes técnicos
 - ✅ Facilita mudanças de tecnologia
 
 ##### **Presentation (Apresentação)**
+
 - **Controllers**: Lógica HTTP
 - **Routes**: Definição de rotas
 - **Schemas Zod**: Validação de entrada/saída
 - **Plugins**: Error handlers, Swagger
 
 **Por quê?**
+
 - ✅ Separa lógica HTTP da lógica de negócio
 - ✅ Validação forte de dados
 
@@ -124,14 +176,14 @@ class MongoLoanRepository implements LoanRepository {
 ✅ **Flexibilidade de Schema**: Fácil evolução do modelo de dados  
 ✅ **Agregações Poderosas**: Cálculos de concentração com `$group` e `$sum`  
 ✅ **Performance**: Índices compostos otimizam queries complexas  
-✅ **Escalabilidade Horizontal**: Sharding para crescimento futuro  
+✅ **Escalabilidade Horizontal**: Sharding para crescimento futuro
 
 ### Por que TypeScript?
 
 ✅ **Type Safety**: Detecta erros em tempo de compilação  
 ✅ **IntelliSense**: Autocompletar melhora produtividade  
 ✅ **Refactoring Seguro**: Mudanças propagam automaticamente  
-✅ **Documentação Viva**: Tipos servem como documentação  
+✅ **Documentação Viva**: Tipos servem como documentação
 
 ### Por que Fastify?
 
@@ -139,14 +191,14 @@ class MongoLoanRepository implements LoanRepository {
 ✅ **Schema-based**: Validação e documentação automática  
 ✅ **TypeScript First**: Suporte nativo e excelente tipagem  
 ✅ **Plugin System**: Arquitetura modular  
-✅ **JSON Schema**: Validação automática com Zod  
+✅ **JSON Schema**: Validação automática com Zod
 
 ### Por que Zod?
 
 ✅ **TypeScript Inference**: Tipos gerados automaticamente  
 ✅ **Runtime Validation**: Valida dados em tempo de execução  
 ✅ **Composable**: Schemas reutilizáveis  
-✅ **Error Messages**: Mensagens claras de validação  
+✅ **Error Messages**: Mensagens claras de validação
 
 ---
 
@@ -208,19 +260,21 @@ src/
 
 ```typescript
 export interface LoanEntityProps {
-  amountInCents: number;  // ✅ Inteiro (centavos)
+  amountInCents: number; // ✅ Inteiro (centavos)
   uf: UF;
   createdAt?: Date;
 }
 ```
 
 **Por quê?**
+
 - ❌ **Problema com floats**: `0.1 + 0.2 !== 0.3` em JavaScript
 - ✅ **Precisão monetária**: Centavos são inteiros, sem arredondamento
 - ✅ **Padrão da indústria**: Stripe, PayPal usam centavos
 - ✅ **Validação**: `Number.isInteger()` garante integridade
 
 **Exemplo:**
+
 ```typescript
 // ❌ Ruim: R$ 100,50 → amount: 100.50 (problemas de precisão)
 // ✅ Bom:  R$ 100,50 → amountInCents: 10050
@@ -236,6 +290,7 @@ constructor(props: LoanEntityProps, id?: string) {
 ```
 
 **Por quê?**
+
 - ✅ **Fail-fast**: Erro imediato se dados inválidos
 - ✅ **Invariantes garantidos**: Impossível criar entidade inválida
 - ✅ **Segurança de tipo**: TypeScript + validação runtime
@@ -243,10 +298,11 @@ constructor(props: LoanEntityProps, id?: string) {
 #### `createdAt` Automático
 
 ```typescript
-createdAt: props.createdAt ?? new Date()
+createdAt: props.createdAt ?? new Date();
 ```
 
 **Por quê?**
+
 - ✅ **Auditoria**: Rastreamento temporal
 - ✅ **Debugging**: Identificar problemas por período
 - ✅ **Análise**: Relatórios por data
@@ -260,11 +316,13 @@ createdAt: props.createdAt ?? new Date()
 
 ```typescript
 export enum BrazilianStateCode {
-  AC = 'AC', AL = 'AL', // ... 27 estados
+  AC = 'AC',
+  AL = 'AL', // ... 27 estados
 }
 ```
 
 **Por quê?**
+
 - ✅ **Autocomplete**: IDE sugere valores válidos
 - ✅ **Validação em compilação**: Erros antes de rodar
 - ✅ **Zod integration**: `z.nativeEnum()` para validação
@@ -274,12 +332,13 @@ export enum BrazilianStateCode {
 ```typescript
 export function assertValidUF(value: string): asserts value is UF {
   if (!isValidUF(value)) {
-    throw new InvalidUFError(value);  // ✅ Erro específico
+    throw new InvalidUFError(value); // ✅ Erro específico
   }
 }
 ```
 
 **Por quê?**
+
 - ✅ **Type narrowing**: TypeScript sabe que depois é UF válido
 - ✅ **Mensagens claras**: `InvalidUFError` retorna 400 com detalhes
 - ✅ **Controle de fluxo**: Usa asserções do TypeScript
@@ -298,25 +357,28 @@ await this.collection.createIndex(
 ```
 
 **Por quê?**
+
 - ✅ **Covered Query**: MongoDB lê apenas o índice, não os documentos
 - ✅ **Agregação Otimizada**: `getAmountByState()` usa só o índice
 - ✅ **Performance**: ~100x mais rápido em milhões de documentos
 
 **Exemplo de uso:**
+
 ```typescript
 // Esta query usa APENAS o índice (covered query)
-db.loans.aggregate([
-  { $group: { _id: '$uf', total: { $sum: '$amountInCents' } } }
-])
+db.loans.aggregate([{ $group: { _id: '$uf', total: { $sum: '$amountInCents' } } }]);
 ```
 
 #### Decisão: `background: true`
 
 ```typescript
-{ background: true }
+{
+  background: true;
+}
 ```
 
 **Por quê?**
+
 - ❌ **Sem background**: Bloqueia toda a coleção durante criação
 - ✅ **Com background**: Sistema continua funcionando
 - ✅ **Produção**: Essencial para não derrubar o sistema
@@ -328,6 +390,7 @@ await this.collection.createIndex({ createdAt: 1 }, { background: true });
 ```
 
 **Por quê?**
+
 - ✅ **Queries temporais**: Relatórios por período
 - ✅ **TTL futuro**: Pode adicionar `expireAfterSeconds` para limpeza automática
 - ✅ **Ordenação**: Listar empréstimos por data
@@ -351,6 +414,7 @@ await this.collection.createIndex({ createdAt: 1 }, { background: true });
 ```
 
 **Por quê?**
+
 - ✅ **Configurável**: Muda limites sem deploy
 - ✅ **Por Estado**: Limites diferentes (SP = 20%, outros = 10%)
 - ✅ **Escalável**: Fácil adicionar novas regras (por região, produto)
@@ -364,11 +428,13 @@ private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
 ```
 
 **Por quê?**
+
 - ✅ **Performance**: Evita query no banco a cada empréstimo
 - ✅ **TTL**: Atualiza automaticamente a cada 5 minutos
 - ✅ **Trade-off**: Balanceia performance vs. atualização em tempo real
 
 **Fluxo:**
+
 ```
 1. Primeiro acesso → Query MongoDB → Salva no cache
 2. Próximos 5min  → Lê do cache (sem query)
@@ -380,12 +446,13 @@ private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
 ```typescript
 // seeds/seed-concentration-limits.ts
 await db.collection('concentration_limits').insertMany([
-  { uf: 'SP', limit: 0.20 },
-  { uf: 'DEFAULT', limit: 0.10 }
+  { uf: 'SP', limit: 0.2 },
+  { uf: 'DEFAULT', limit: 0.1 },
 ]);
 ```
 
 **Por quê?**
+
 - ✅ **Dados iniciais**: Garante configuração padrão
 - ✅ **Idempotente**: Pode rodar múltiplas vezes
 - ✅ **Versionado**: Parte do código, não manual
@@ -407,6 +474,7 @@ if (newConcentration > limit) {
 ```
 
 **Por quê?**
+
 - ✅ **Proativo**: Calcula impacto ANTES de salvar
 - ✅ **Atômico**: Valida e rejeita em uma operação
 - ✅ **Preciso**: Usa valores exatos da carteira atual
@@ -420,6 +488,7 @@ if (totalPortfolioAmount === 0) {
 ```
 
 **Por quê?**
+
 - ✅ **Cold start**: Sistema precisa iniciar vazio
 - ✅ **Matemática**: 100/0 = infinito (não faz sentido)
 - ✅ **Negócio**: Primeiro empréstimo sempre OK
@@ -442,6 +511,7 @@ export interface HttpError extends Error {
 ```
 
 **Por quê?**
+
 - ✅ **Consistência**: Todos os erros seguem mesmo formato
 - ✅ **Extensível**: Fácil adicionar novos erros
 - ✅ **Type-safe**: TypeScript garante contrato
@@ -458,6 +528,7 @@ fastify.setErrorHandler((error, request, reply) => {
 ```
 
 **Por quê?**
+
 - ✅ **DRY**: Um único lugar para tratar erros
 - ✅ **Escalável**: Novos erros automaticamente tratados
 - ✅ **Logging**: Centraliza logs de erro
@@ -467,18 +538,19 @@ fastify.setErrorHandler((error, request, reply) => {
 ```typescript
 class ConcentrationLimitExceededError extends Error implements HttpError {
   statusCode = 422; // Unprocessable Entity
-  
+
   toJSON() {
     return {
       error: 'Concentration Limit Exceeded',
       message: this.message,
-      details: { uf: this.uf, current: this.current, limit: this.limit }
+      details: { uf: this.uf, current: this.current, limit: this.limit },
     };
   }
 }
 ```
 
 **Por quê?**
+
 - ✅ **Semântico**: Status code correto (422 vs 400 vs 500)
 - ✅ **Detalhes**: Cliente recebe informações úteis
 - ✅ **Debugging**: Fácil identificar problema
@@ -494,7 +566,7 @@ class ConcentrationLimitExceededError extends Error implements HttpError {
 export function makeRepositories(db: Db) {
   return {
     loanRepository: new MongoLoanRepository(db),
-    concentrationLimitRepository: new MongoConcentrationLimitRepository(db)
+    concentrationLimitRepository: new MongoConcentrationLimitRepository(db),
   };
 }
 
@@ -503,18 +575,20 @@ export function makeServices(repositories: Repositories) {
   return {
     concentrationRiskService: new ConcentrationRiskService(
       repositories.concentrationLimitRepository
-    )
+    ),
   };
 }
 ```
 
 **Por quê?**
+
 - ✅ **Organização**: Dependências por camada
 - ✅ **Type-safe**: `ReturnType<typeof makeRepositories>`
 - ✅ **Testável**: Fácil mockar para testes
 - ✅ **Manutenível**: `src/index.ts` limpo e pequeno
 
 **Antes (ruim):**
+
 ```typescript
 // ❌ index.ts ficava enorme com todas as instâncias
 const loanRepo = new MongoLoanRepository(db);
@@ -525,6 +599,7 @@ const createLoanUseCase = new CreateLoanUseCase(loanRepo, concentrationService);
 ```
 
 **Depois (bom):**
+
 ```typescript
 // ✅ index.ts limpo
 const repositories = makeRepositories(db);
@@ -546,6 +621,7 @@ export const createLoanSchema = z.object({
 ```
 
 **Por quê?**
+
 - ✅ **Type inference**: `type CreateLoanInput = z.infer<typeof createLoanSchema>`
 - ✅ **Runtime validation**: Valida dados do usuário
 - ✅ **Swagger automático**: Documentação gerada automaticamente
@@ -554,19 +630,24 @@ export const createLoanSchema = z.object({
 #### Integração com Fastify
 
 ```typescript
-app.post('/', {
-  schema: {
-    body: createLoanSchema,
-    response: {
-      201: createLoanResponseSchema,
-      400: badRequestErrorSchema,
-      422: unprocessableEntityErrorSchema
-    }
-  }
-}, handler);
+app.post(
+  '/',
+  {
+    schema: {
+      body: createLoanSchema,
+      response: {
+        201: createLoanResponseSchema,
+        400: badRequestErrorSchema,
+        422: unprocessableEntityErrorSchema,
+      },
+    },
+  },
+  handler
+);
 ```
 
 **Por quê?**
+
 - ✅ **Documentação viva**: Swagger UI sempre atualizado
 - ✅ **Contrato**: Cliente sabe exatamente o que enviar/receber
 - ✅ **Validação automática**: Fastify valida antes de chamar handler
@@ -585,6 +666,7 @@ presentation/  → Unit tests (mocks de use cases)
 ```
 
 **Por quê?**
+
 - ✅ **Rápidos**: Unit tests rodam em milissegundos
 - ✅ **Confiança**: Integration tests validam persistência real
 - ✅ **CI/CD**: Unit tests em todo commit, integration em deploy
@@ -598,81 +680,100 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await db.collection('loans').deleteMany({}); // ✅ Limpa antes de cada teste
-  await db.collection('loans').dropIndexes();  // ✅ Recria índices
+  await db.collection('loans').dropIndexes(); // ✅ Recria índices
   await repository.ensureIndexes();
 });
 ```
 
 **Por quê?**
+
 - ✅ **Isolamento**: Cada teste começa limpo
 - ✅ **Realista**: Testa comportamento real do MongoDB
 - ✅ **Índices**: Garante que índices funcionam corretamente
 
 ---
 
-## 🚀 Como Executar
+## 🚀 Como Executar (Detalhado)
 
 ### Pré-requisitos
 
 - Node.js 18+
-- MongoDB 6+
-- npm ou yarn
+- Docker (para MongoDB)
+- Make
 
-### Instalação
+### Instalação Completa
 
 ```bash
-# Clone o repositório
+# 1. Clone o repositório
 git clone <repo-url>
 cd condolivre-challenge
 
-# Instale dependências
-npm install
-
-# Configure variáveis de ambiente
+# 2. Configure variáveis de ambiente (opcional - já tem defaults)
 cp .env.example .env
 cp .env.example .env.test.local
+
+# 3. Setup completo com um comando
+make setup
+```
+
+### Comandos do Makefile
+
+#### Desenvolvimento
+
+```bash
+make run          # Inicia TUDO (Docker + Seeds + API)
+make dev          # Apenas inicia a API (hot reload)
+make seed         # Apenas roda os seeds
+```
+
+#### Docker
+
+```bash
+make docker-up    # Inicia MongoDB
+make docker-down  # Para MongoDB
+```
+
+#### Testes
+
+```bash
+make test         # Roda todos os testes
+```
+
+#### Comandos NPM (alternativo)
+
+```bash
+npm run dev             # Desenvolvimento (hot reload)
+npm run seed            # Seeds
+npm test                # Testes
+npm run test:watch      # Testes em modo watch
+npm run test:coverage   # Testes com coverage
+npm run build           # Compila TypeScript
+npm start               # Produção (depois de build)
 ```
 
 ### Configuração
 
-**.env**
+**.env** (desenvolvimento)
+
 ```env
 NODE_ENV=development
-PORT=3000
+PORT=3333
 MONGODB_URI=mongodb://localhost:27017/condolivre
 ```
 
-**.env.test.local**
+**.env.test.local** (testes)
+
 ```env
 NODE_ENV=test
 MONGODB_URI_TEST=mongodb://localhost:27017/condolivre_test
-```
-
-### Executar
-
-```bash
-# Seed inicial (primeira vez)
-npm run seed
-
-# Desenvolvimento (hot reload)
-npm run dev
-
-# Produção
-npm run build
-npm start
-
-# Testes
-npm test
-
-# Testes com coverage
-npm run test:coverage
+PORT=3333
 ```
 
 ### Acessar
 
-- **API**: http://localhost:3000
-- **Swagger UI**: http://localhost:3000/docs
-- **Health Check**: http://localhost:3000/health (se implementado)
+- **API**: http://localhost:3333
+- **Swagger UI**: http://localhost:3333/docs
+- **MongoDB**: mongodb://localhost:27017
 
 ---
 
@@ -722,6 +823,7 @@ curl -X POST http://localhost:3000/loans \
 ```
 
 **Response (201):**
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -743,6 +845,7 @@ curl -X POST http://localhost:3000/loans \
 ```
 
 **Response (422):**
+
 ```json
 {
   "error": "Concentration Limit Exceeded",
@@ -750,7 +853,7 @@ curl -X POST http://localhost:3000/loans \
   "details": {
     "uf": "RJ",
     "currentConcentration": 0.12,
-    "limit": 0.10
+    "limit": 0.1
   }
 }
 ```
@@ -794,7 +897,7 @@ Este projeto demonstra:
 ✅ **Performance**: Índices otimizados no MongoDB  
 ✅ **Testabilidade**: 124 testes com boa cobertura  
 ✅ **Documentação**: Swagger automático + README completo  
-✅ **Escalabilidade**: Preparado para crescer  
+✅ **Escalabilidade**: Preparado para crescer
 
 ---
 

@@ -40,14 +40,6 @@ export class MongoLoanRepository implements LoanRepository {
         throw error;
       }
     }
-
-    try {
-      await this.collection.createIndex({ createdAt: 1 }, { background: true });
-    } catch (error) {
-      if (error instanceof MongoServerError && error.code !== 86) {
-        throw error;
-      }
-    }
   }
 
   async save(loan: LoanEntity): Promise<LoanEntity> {
