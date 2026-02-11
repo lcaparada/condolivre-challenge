@@ -12,13 +12,31 @@ function makeInput(overrides: Partial<Parameters<typeof validateConcentration>[0
 }
 
 describe('validateConcentration', () => {
-  describe('when portfolio is empty', () => {
-    it('throws because new loan would be 100% in one state (exceeds any limit)', () => {
+  describe('when portfolio is empty (first loan)', () => {
+    it('allows any loan because there is no existing concentration', () => {
       expect(() =>
         validateConcentration(
-          makeInput({ totalPortfolioAmount: 0, amountByState: {}, newLoanAmount: 50_000, newLoanUf: 'SP' })
+          makeInput({
+            totalPortfolioAmount: 0,
+            amountByState: {},
+            newLoanAmount: 50_000,
+            newLoanUf: 'SP',
+          })
         )
-      ).toThrow(ConcentrationLimitExceededError);
+      ).not.toThrow();
+    });
+
+    it('allows first loan in any state', () => {
+      expect(() =>
+        validateConcentration(
+          makeInput({
+            totalPortfolioAmount: 0,
+            amountByState: {},
+            newLoanAmount: 100_000,
+            newLoanUf: 'RJ',
+          })
+        )
+      ).not.toThrow();
     });
   });
 

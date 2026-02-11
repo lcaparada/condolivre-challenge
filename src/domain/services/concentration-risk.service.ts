@@ -27,6 +27,10 @@ export function validateConcentration({
     return;
   }
 
+  if (totalPortfolioAmount === 0) {
+    return;
+  }
+
   const uf = newLoanUf.toUpperCase();
   const limit = getLimitForState(uf);
 

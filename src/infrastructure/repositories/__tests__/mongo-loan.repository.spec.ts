@@ -9,7 +9,7 @@ describe('MongoLoanRepository', () => {
 
   beforeAll(async () => {
     db = await connectToDatabase();
-  }, 15000); // 15s timeout for connection
+  }, 15000);
 
   afterAll(async () => {
     await disconnectFromDatabase();
