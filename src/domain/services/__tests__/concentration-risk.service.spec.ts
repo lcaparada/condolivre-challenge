@@ -1,4 +1,4 @@
-import { ConcentrationLimitExceededError } from '../../errors';
+import { ConcentrationLimitExceededError } from '../../errors/concentration-limit-exceeded.error';
 import {
   ConcentrationRiskService,
   type ConcentrationValidationInput,

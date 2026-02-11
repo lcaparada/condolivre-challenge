@@ -1,5 +1,5 @@
 import type { UF } from '../constants/brazilian-states';
-import { ConcentrationLimitExceededError } from '../errors';
+import { ConcentrationLimitExceededError } from '../errors/concentration-limit-exceeded.error';
 import type { ConcentrationLimitRepository } from '../repositories/concentration-limit.repository';
 
 export interface ConcentrationValidationInput {
