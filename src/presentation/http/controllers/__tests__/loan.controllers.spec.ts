@@ -2,11 +2,16 @@ import { LoanController } from '../loan.controllers';
 import { CreateLoanUseCase } from '@/application';
 import { BrazilianStateCode } from '@/domain';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { z } from 'zod';
+import type { createLoanSchema } from '../../schemas';
+
+type CreateLoanBody = z.infer<typeof createLoanSchema>;
+type CreateLoanRequest = FastifyRequest<{ Body: CreateLoanBody }>;
 
 describe('LoanController', () => {
   let controller: LoanController;
   let mockCreateLoanUseCase: jest.Mocked<CreateLoanUseCase>;
-  let mockRequest: Partial<FastifyRequest>;
+  let mockRequest: Partial<CreateLoanRequest>;
   let mockReply: Partial<FastifyReply>;
 
   beforeEach(() => {
@@ -38,7 +43,7 @@ describe('LoanController', () => {
         createdAt: new Date(),
       });
 
-      await controller.createLoan(mockRequest as FastifyRequest, mockReply as FastifyReply);
+      await controller.createLoan(mockRequest as CreateLoanRequest, mockReply as FastifyReply);
 
       expect(mockCreateLoanUseCase.execute).toHaveBeenCalledWith({
         amountInCents: 1_000_000,
@@ -62,7 +67,7 @@ describe('LoanController', () => {
         createdAt: new Date(),
       });
 
-      await controller.createLoan(mockRequest as FastifyRequest, mockReply as FastifyReply);
+      await controller.createLoan(mockRequest as CreateLoanRequest, mockReply as FastifyReply);
 
       expect(mockReply.status).toHaveBeenCalledWith(201);
     });
@@ -84,67 +89,9 @@ describe('LoanController', () => {
 
       mockCreateLoanUseCase.execute.mockResolvedValue(expectedResult);
 
-      await controller.createLoan(mockRequest as FastifyRequest, mockReply as FastifyReply);
+      await controller.createLoan(mockRequest as CreateLoanRequest, mockReply as FastifyReply);
 
       expect(mockReply.send).toHaveBeenCalledWith(expectedResult);
-    });
-
-    it('validates request body with schema', async () => {
-      mockRequest = {
-        body: {
-          amountInCents: -100,
-          uf: BrazilianStateCode.SP,
-        },
-      };
-
-      await expect(
-        controller.createLoan(mockRequest as FastifyRequest, mockReply as FastifyReply)
-      ).rejects.toThrow();
-
-      expect(mockCreateLoanUseCase.execute).not.toHaveBeenCalled();
-    });
-
-    it('rejects invalid UF through schema validation', async () => {
-      mockRequest = {
-        body: {
-          amountInCents: 1_000_000,
-          uf: 'INVALID_UF',
-        },
-      };
-
-      await expect(
-        controller.createLoan(mockRequest as FastifyRequest, mockReply as FastifyReply)
-      ).rejects.toThrow();
-
-      expect(mockCreateLoanUseCase.execute).not.toHaveBeenCalled();
-    });
-
-    it('rejects missing amount', async () => {
-      mockRequest = {
-        body: {
-          uf: BrazilianStateCode.SP,
-        },
-      };
-
-      await expect(
-        controller.createLoan(mockRequest as FastifyRequest, mockReply as FastifyReply)
-      ).rejects.toThrow();
-
-      expect(mockCreateLoanUseCase.execute).not.toHaveBeenCalled();
-    });
-
-    it('rejects missing uf', async () => {
-      mockRequest = {
-        body: {
-          amountInCents: 1_000_000,
-        },
-      };
-
-      await expect(
-        controller.createLoan(mockRequest as FastifyRequest, mockReply as FastifyReply)
-      ).rejects.toThrow();
-
-      expect(mockCreateLoanUseCase.execute).not.toHaveBeenCalled();
     });
 
     it('propagates use case errors', async () => {
@@ -159,7 +106,7 @@ describe('LoanController', () => {
       mockCreateLoanUseCase.execute.mockRejectedValue(error);
 
       await expect(
-        controller.createLoan(mockRequest as FastifyRequest, mockReply as FastifyReply)
+        controller.createLoan(mockRequest as CreateLoanRequest, mockReply as FastifyReply)
       ).rejects.toThrow('Use case error');
     });
   });
